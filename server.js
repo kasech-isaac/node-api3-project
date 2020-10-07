@@ -5,10 +5,17 @@ const postRouter = require("./posts/postRouter");
 
 const server = express();
 
-server.use(logger);
+//custom middleware
+function logger(req, res, next) {
+  const time = new Date().toISOString();
+  console.log(`[${time}]().toISOString() ${req.method} ${req.url}`)
+  next()
+}
+server.use(logger)
+
 server.use(express.json());
-server.use(userRouter);
-server.use(postRouter);
+server.use("/user",userRouter);
+server.use("/post",postRouter);
 
 // err mideleware
 server.use((err, req, res, next)=>{
@@ -23,11 +30,6 @@ server.get("/", (req, res) => {
 });
 
 
-//custom middleware
-function logger(req, res, next) {
-  const time = new Date().toISOString();
-  console.log(`[${time}] ${req.ip} ${req.method} ${req.url}`);
-  next();
-}
+
 
 module.exports = server;

@@ -7,18 +7,17 @@ const router = express.Router();
 
 router.post('/', validateUser,(req, res) => {
   // do your magic!
-  db.insert(req.body.id)
-  .then(newUser=>{
-    if (newUser){
-      res.status(201).json(newUser)
-    }
+  db.insert(req.body)
+  .then((newUser)=>{
+    res.status(201).json(newUser)
+    
   })
   .catch((error) => {
     next(error)
   })
 });
 
-router.post('/:id/posts',validatePost, validateUserId,(req, res) => {
+router.post('/:id/posts',validatePost(), validateUserId(),(req, res) => {
     // do your magic!
     post_db.insert(req.params.id, req.body)
   .then(post=>{
@@ -42,18 +41,14 @@ router.get('/', (req, res) => {
   })
 });
 
-router.get('/:id',validateUserId, (req, res) => {
+router.get('/:id',validateUserId(), (req, res) => {
   // do your magic!
-  db.getById(req.params.id)
-  .then(user=>{
-    res.status(200).json(user)
-  })
-  .catch((error) => {
-    next(error)
-  })
+  // user is attached to the req in validateUserId
+    res.status(200).json(req.user)
+ 
 });
 
-router.get('/:id/posts',validateUserId, (req, res) => {
+router.get('/:id/posts',validateUserId(), (req, res) => {
   // do your magic!
 db.getUserPosts(req.params.id)
 .then(post=>{
@@ -67,12 +62,16 @@ db.getUserPosts(req.params.id)
 
 });
 
-router.delete('/:id', validateUserId,(req, res) => {
+router.delete('/:id',(req, res) => {
   // do your magic!
   db.remove(req.prames.id)
 .then ((removed)=>{
-  if (removed){
-   return   res.status(200).json({message: "deleted"})
+  if (removed > 0){
+   res.status(200).json({message: "user has been deleted"})
+  }else{
+    res.status(404).json({
+      message: "The user could not be found",
+    })
   }
 })
 .catch((error) => {
@@ -81,13 +80,17 @@ router.delete('/:id', validateUserId,(req, res) => {
 
 });
 
-router.put('/:id',validateUserId,validateUser, (req, res) => {
+router.put('/:id',validateUser(), validateUserId(),(req, res) => {
   // do your magic!
   db.update(req.params.id, req.body)
-  .then(update=>{
-    
-      return res.status(200).json(update)
-    
+  .then((update)=>{
+    if(update){
+      res.status(200).json(update)
+    }else {
+      res.status(404).json({
+        message: "The user could not be found",
+      })
+    }
   })
   .catch((error) => {
     next(error)

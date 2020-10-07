@@ -1,10 +1,11 @@
-const userDb= require("../users/userDb")
+const db= require("../users/userDb")
 
 function validateUserId(){
     return (req, res, next)=>{
-        userDb.getById(req.params.id)
+        db.getById(req.params.id)
         .then((user)=>{
             if(user){
+                // attach "user data the request so we could access it inmidw func"
                 req.user=user
                 next()
             }else{
@@ -19,8 +20,9 @@ function validateUserId(){
 }
 
 function validateUser(){
+    return (req, res, next)=>{
     if(!req.body){
-        res.status(400).json({message: "missing post data"}) 
+        res.status(400).json({message: "missing user data"}) 
     }else if(!req.body.name){
      res.status(400).json({message: "missing required name field"})
 
@@ -28,8 +30,10 @@ function validateUser(){
         next()
     }
 }
+}
 
 function validatePost(){
+    return (req, res, next)=>{
     if (!req.bod){
         res.status(400).json({message: "missing post data"})
 
@@ -38,6 +42,7 @@ function validatePost(){
     }else{
         next()
     }
+}
 }
 
 
